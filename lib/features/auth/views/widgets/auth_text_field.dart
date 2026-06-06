@@ -6,14 +6,16 @@ class AuthTextField extends StatefulWidget {
   final String? hintText;
   final bool isPassword;
   final Widget? trailingLabel;
+  final TextEditingController? controller;
 
   const AuthTextField({
-    Key? key,
+    super.key,
     required this.label,
     this.hintText,
     this.isPassword = false,
     this.trailingLabel,
-  }) : super(key: key);
+    this.controller,
+  });
 
   @override
   State<AuthTextField> createState() => _AuthTextFieldState();
@@ -44,6 +46,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
         ),
         const SizedBox(height: 8),
         TextFormField(
+          controller: widget.controller,
           obscureText: widget.isPassword ? _obscureText : false,
           style: GoogleFonts.inter(
             fontSize: 15,

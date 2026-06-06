@@ -1,13 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../view_models/auth_view_model.dart';
 import 'widgets/auth_text_field.dart';
 import 'widgets/auth_button.dart';
 
-class ResetPasswordScreen extends StatelessWidget {
+class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
 
   @override
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+}
+
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  final TextEditingController _emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  void _resetPassword() async {
+    final viewModel = context.read<AuthViewModel>();
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email')),
+      );
+      return;
+    }
+
+    final success = await viewModel.resetPassword(email);
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset link sent to your email')),
+      );
+      Navigator.pop(context);
+    } else if (mounted && viewModel.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage!)),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<AuthViewModel>().isLoading;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
@@ -32,7 +73,7 @@ class ResetPasswordScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -60,15 +101,18 @@ class ResetPasswordScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    const AuthTextField(
+                    AuthTextField(
+                      controller: _emailController,
                       label: 'EMAIL ADDRESS',
                       hintText: 'name@company.com',
                     ),
                     const SizedBox(height: 32),
-                    AuthButton(
-                      text: 'Reset Password',
-                      onPressed: () {},
-                    ),
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : AuthButton(
+                            text: 'Reset Password',
+                            onPressed: _resetPassword,
+                          ),
                     const SizedBox(height: 32),
                     const Divider(color: Color(0xFFE5E7EB)),
                     const SizedBox(height: 24),

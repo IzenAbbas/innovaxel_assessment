@@ -1,18 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import '../view_models/auth_view_model.dart';
 import 'widgets/auth_text_field.dart';
 import 'widgets/auth_button.dart';
 import 'reset_password.dart';
 import 'signup.dart';
 import '../../home/views/home.dart';
-import 'widgets/auth_button.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _login() async {
+    final viewModel = context.read<AuthViewModel>();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password')),
+      );
+      return;
+    }
+
+    final success = await viewModel.login(email, password);
+    if (success && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else if (mounted && viewModel.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage!)),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<AuthViewModel>().isLoading;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
@@ -60,7 +103,7 @@ class LoginScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -68,12 +111,14 @@ class LoginScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const AuthTextField(
+                    AuthTextField(
+                      controller: _emailController,
                       label: 'EMAIL ADDRESS',
                       hintText: 'name@company.com',
                     ),
                     const SizedBox(height: 24),
                     AuthTextField(
+                      controller: _passwordController,
                       label: 'PASSWORD',
                       hintText: '••••••••',
                       isPassword: true,
@@ -95,15 +140,12 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    AuthButton(
-                      text: 'Sign In',
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomeScreen()),
-                        );
-                      },
-                    ),
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : AuthButton(
+                            text: 'Sign In',
+                            onPressed: _login,
+                          ),
                     const SizedBox(height: 24),
                     Row(
                       children: [
@@ -126,10 +168,7 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomeScreen()),
-                        );
+
                       },
                       child: SizedBox(
                         width: double.infinity,

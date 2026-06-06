@@ -1,14 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../view_models/auth_view_model.dart';
 import 'widgets/auth_text_field.dart';
 import 'widgets/auth_button.dart';
 import '../../home/views/home.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _signup() async {
+    final viewModel = context.read<AuthViewModel>();
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    final success = await viewModel.signUp(name, email, password);
+    if (success && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else if (mounted && viewModel.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage!)),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<AuthViewModel>().isLoading;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
@@ -59,7 +116,7 @@ class SignupScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -67,38 +124,39 @@ class SignupScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const AuthTextField(
+                    AuthTextField(
+                      controller: _nameController,
                       label: 'FULL NAME',
                       hintText: 'John Doe',
                     ),
                     const SizedBox(height: 24),
-                    const AuthTextField(
+                    AuthTextField(
+                      controller: _emailController,
                       label: 'EMAIL ADDRESS',
                       hintText: 'name@company.com',
                     ),
                     const SizedBox(height: 24),
-                    const AuthTextField(
+                    AuthTextField(
+                      controller: _passwordController,
                       label: 'PASSWORD',
                       hintText: '••••••••',
                       isPassword: true,
                     ),
                     const SizedBox(height: 24),
-                    const AuthTextField(
+                    AuthTextField(
+                      controller: _confirmPasswordController,
                       label: 'CONFIRM PASSWORD',
                       hintText: '••••••••',
                       isPassword: true,
                     ),
                     const SizedBox(height: 32),
-                    AuthButton(
-                      text: 'Create Account',
-                      showArrow: false,
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomeScreen()),
-                        );
-                      },
-                    ),
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : AuthButton(
+                            text: 'Create Account',
+                            showArrow: false,
+                            onPressed: _signup,
+                          ),
                     const SizedBox(height: 32),
                     Row(
                       children: [

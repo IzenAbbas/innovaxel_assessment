@@ -7,11 +7,11 @@ class AuthButton extends StatelessWidget {
   final bool showArrow;
 
   const AuthButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.showArrow = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
