@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "858964913795",
+    "project_id": "innovaxelassessment",
+    "storage_bucket": "innovaxelassessment.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:858964913795:android:43ddfc22b179e359de75b6",
+        "android_client_info": {
+          "package_name": "com.example.innovaxel_assessment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFPke3VG8Zuep80eHfOxOc8IpzQIjRgjU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
