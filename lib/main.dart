@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:innovaxel_assessment/features/auth/views/login.dart';
-import 'package:innovaxel_assessment/features/home/views/home.dart';
+import 'package:innovaxel_assessment/features/expenses/views/expenses_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:innovaxel_assessment/features/auth/view_models/auth_view_model.dart';
 import 'package:innovaxel_assessment/core/theme/theme_provider.dart';
+import 'package:innovaxel_assessment/features/expenses/view_models/expense_view_model.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -16,6 +17,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ExpenseViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -69,7 +71,7 @@ class MyApp extends StatelessWidget {
             );
           }
           if (snapshot.hasData && snapshot.data != null) {
-            return const HomeScreen();
+            return const ExpensesScreen();
           }
           return const LoginScreen();
         },

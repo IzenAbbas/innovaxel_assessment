@@ -7,7 +7,7 @@ import 'widgets/auth_text_field.dart';
 import 'widgets/auth_button.dart';
 import 'reset_password.dart';
 import 'signup.dart';
-import '../../home/views/home.dart';
+import '../../expenses/views/expenses_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const ExpensesScreen()),
       );
     } else if (mounted && viewModel.errorMessage != null) {
       ScaffoldMessenger.of(
@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const ExpensesScreen()),
       );
     } else if (mounted && viewModel.errorMessage != null) {
       ScaffoldMessenger.of(

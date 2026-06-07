@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../view_models/auth_view_model.dart';
 import 'widgets/auth_text_field.dart';
 import 'widgets/auth_button.dart';
-import '../../home/views/home.dart';
+import '../../expenses/views/expenses_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -63,7 +63,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 Navigator.of(context).pop();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  MaterialPageRoute(builder: (context) => const ExpensesScreen()),
                 );
               },
               child: const Text('OK'),
