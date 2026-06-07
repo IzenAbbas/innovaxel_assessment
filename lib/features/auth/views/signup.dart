@@ -51,9 +51,25 @@ class _SignupScreenState extends State<SignupScreen> {
 
     final success = await viewModel.signUp(name, email, password);
     if (success && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Verify Email'),
+          content: Text('A verification link has been sent to $email. Please check your inbox.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
       );
     } else if (mounted && viewModel.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(

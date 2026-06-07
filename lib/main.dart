@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:innovaxel_assessment/features/auth/views/login.dart';
+import 'package:innovaxel_assessment/features/home/views/home.dart';
 import 'package:provider/provider.dart';
 import 'package:innovaxel_assessment/features/auth/view_models/auth_view_model.dart';
+import 'package:innovaxel_assessment/core/theme/theme_provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -12,6 +15,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -23,6 +27,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
     return MaterialApp(
       title: 'Innovaxel Finance',
       theme: ThemeData(
@@ -32,7 +38,7 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.light(
           primary: Color(0xFF000000),
           onPrimary: Color(0xFFFFFFFF),
-          surface: Color(0xFFF9F9FF),
+          surface: Color(0xFFFFFFFF),
           onSurface: Color(0xFF111C2D),
           error: Color(0xFFBA1A1A),
           onError: Color(0xFFFFFFFF),
@@ -45,14 +51,29 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFFB7C4FF),
           onPrimary: Color(0xFF002682),
-          surface: Color(0xFF0B1326),
+          surface: Color(0xFF131B2E),
           onSurface: Color(0xFFDAE2FD),
           error: Color(0xFFFFB4AB),
           onError: Color(0xFF690005),
         ),
       ),
-      themeMode: ThemeMode.system,
-      home: const LoginScreen(),
+      themeMode: themeProvider.themeMode,
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          if (snapshot.hasData && snapshot.data != null) {
+            return const HomeScreen();
+          }
+          return const LoginScreen();
+        },
+      ),
     );
   }
 }

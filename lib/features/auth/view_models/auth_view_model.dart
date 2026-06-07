@@ -8,6 +8,9 @@ class AuthViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isGoogleLoading = false;
+  bool get isGoogleLoading => _isGoogleLoading;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -74,6 +77,28 @@ class AuthViewModel extends ChangeNotifier {
     } catch (e) {
       _setErrorMessage(e.toString());
       _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> signInWithGoogle() async {
+    _isGoogleLoading = true;
+    _setErrorMessage(null);
+    notifyListeners();
+    try {
+      User? user = await _authRepository.signInWithGoogle();
+      _isGoogleLoading = false;
+      notifyListeners();
+      return user != null;
+    } on FirebaseAuthException catch (e) {
+      _setErrorMessage(e.message ?? 'An unknown error occurred');
+      _isGoogleLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _setErrorMessage(e.toString());
+      _isGoogleLoading = false;
+      notifyListeners();
       return false;
     }
   }

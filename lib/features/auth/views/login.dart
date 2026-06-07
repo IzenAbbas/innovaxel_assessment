@@ -29,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     final viewModel = context.read<AuthViewModel>();
+    if (viewModel.isLoading || viewModel.isGoogleLoading) return;
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -46,15 +47,33 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else if (mounted && viewModel.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(viewModel.errorMessage!)),
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(viewModel.errorMessage!)));
+    }
+  }
+
+  void _loginWithGoogle() async {
+    final viewModel = context.read<AuthViewModel>();
+    if (viewModel.isLoading || viewModel.isGoogleLoading) return;
+    final success = await viewModel.signInWithGoogle();
+    if (success && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
+    } else if (mounted && viewModel.errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(viewModel.errorMessage!)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = context.watch<AuthViewModel>().isLoading;
+    final authViewModel = context.watch<AuthViewModel>();
+    final isLoading = authViewModel.isLoading;
+    final isGoogleLoading = authViewModel.isGoogleLoading;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
@@ -126,7 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => const ResetPasswordScreen(),
+                            ),
                           );
                         },
                         child: Text(
@@ -149,7 +170,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     Row(
                       children: [
-                        const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                        const Expanded(
+                          child: Divider(color: Color(0xFFE5E7EB)),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
@@ -162,23 +185,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                        const Expanded(
+                          child: Divider(color: Color(0xFFE5E7EB)),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    GestureDetector(
-                      onTap: () {
-
-                      },
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 44,
-                        child: SvgPicture.asset(
-                          'assets/icons/android_light_sq_ctn.svg',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
+                    isGoogleLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : GestureDetector(
+                            onTap: (isLoading || isGoogleLoading) ? null : _loginWithGoogle,
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 44,
+                              child: SvgPicture.asset(
+                                'assets/icons/android_light_sq_ctn.svg',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
                   ],
                 ),
               ),
@@ -187,7 +212,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SignupScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const SignupScreen(),
+                    ),
                   );
                 },
                 child: RichText(
