@@ -9,6 +9,7 @@ import 'widgets/add_expense_sheet.dart';
 import 'widgets/confirm_dialog.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/date_formatter.dart';
+import 'summary_screen.dart';
 
 class ExpensesScreen extends StatefulWidget {
   const ExpensesScreen({super.key});
@@ -18,6 +19,8 @@ class ExpensesScreen extends StatefulWidget {
 }
 
 class _ExpensesScreenState extends State<ExpensesScreen> {
+  int _selectedIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -361,13 +364,18 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     final themeProvider = context.watch<ThemeProvider>();
     final isDark = themeProvider.isDarkMode;
 
+    final List<Widget> screens = [
+      _buildDashboard(context, isDark),
+      const SummaryScreen(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'Innovaxel Expenses',
+          _selectedIndex == 0 ? 'Innovaxel Expenses' : 'Expense Summary',
           style: GoogleFonts.manrope(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -394,23 +402,61 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(child: _buildDashboard(context, isDark)),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: isDark
-            ? const Color(0xFFB7C4FF)
-            : const Color(0xFF111827),
-        foregroundColor: isDark ? const Color(0xFF002682) : Colors.white,
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => const AddExpenseSheet(),
-          );
-        },
-        child: const Icon(Icons.add),
+      body: SafeArea(child: IndexedStack(index: _selectedIndex, children: screens)),
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              backgroundColor: isDark
+                  ? const Color(0xFFB7C4FF)
+                  : const Color(0xFF111827),
+              foregroundColor: isDark ? const Color(0xFF002682) : Colors.white,
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const AddExpenseSheet(),
+                );
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: isDark ? const Color(0xFF222A3D) : const Color(0xFFE5E7EB),
+              width: 1.0,
+            ),
+          ),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          backgroundColor: isDark ? const Color(0xFF0B1326) : const Color(0xFFF9F9FF),
+          selectedItemColor: isDark ? const Color(0xFFB7C4FF) : const Color(0xFF111827),
+          unselectedItemColor: isDark ? const Color(0xFFC3C5D9) : const Color(0xFF45464D),
+          selectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+          unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 12),
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.pie_chart_outline),
+              activeIcon: Icon(Icons.pie_chart),
+              label: 'Summary',
+            ),
+          ],
+        ),
       ),
     );
   }

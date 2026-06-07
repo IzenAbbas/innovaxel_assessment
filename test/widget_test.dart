@@ -1,30 +1,81 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:innovaxel_assessment/main.dart';
+import 'package:innovaxel_assessment/data/models/expense.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Expense Model Tests', () {
+    test('Expense model properties', () {
+      final dateTime = DateTime.now();
+      final expense = Expense(
+        id: '1',
+        title: 'Lunch',
+        amount: 15.5,
+        category: 'Food',
+        dateTime: dateTime,
+        userId: 'user_123',
+        notes: 'Delicious burger',
+      );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(expense.id, '1');
+      expect(expense.title, 'Lunch');
+      expect(expense.amount, 15.5);
+      expect(expense.category, 'Food');
+      expect(expense.dateTime, dateTime);
+      expect(expense.userId, 'user_123');
+      expect(expense.notes, 'Delicious burger');
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('Expense getIcon returns correct icon for categories', () {
+      final expenseFood = Expense(
+        id: '1',
+        title: 'Coffee',
+        amount: 4.5,
+        category: 'Food & Drinks',
+        dateTime: DateTime.now(),
+        userId: 'user_123',
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      final expenseShopping = Expense(
+        id: '2',
+        title: 'Shirt',
+        amount: 25.0,
+        category: 'Shopping',
+        dateTime: DateTime.now(),
+        userId: 'user_123',
+      );
+
+      final expenseOther = Expense(
+        id: '3',
+        title: 'Random',
+        amount: 10.0,
+        category: 'UnknownCategory',
+        dateTime: DateTime.now(),
+        userId: 'user_123',
+      );
+
+      expect(expenseFood.getIcon(), Icons.local_cafe_outlined);
+      expect(expenseShopping.getIcon(), Icons.shopping_bag_outlined);
+      expect(expenseOther.getIcon(), Icons.monetization_on_outlined);
+    });
+
+    test('Expense toFirestore map representation', () {
+      final dateTime = DateTime.now();
+      final expense = Expense(
+        id: '1',
+        title: 'Taxi',
+        amount: 12.0,
+        category: 'Transport',
+        dateTime: dateTime,
+        userId: 'user_123',
+        notes: 'Business trip',
+      );
+
+      final map = expense.toFirestore();
+      expect(map['title'], 'Taxi');
+      expect(map['amount'], 12.0);
+      expect(map['category'], 'Transport');
+      expect(map['userId'], 'user_123');
+      expect(map['notes'], 'Business trip');
+    });
   });
 }

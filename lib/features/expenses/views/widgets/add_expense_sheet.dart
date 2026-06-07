@@ -277,7 +277,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 TextFormField(
                   controller: _titleController,
                   textCapitalization: TextCapitalization.words,
-                  maxLength: 20,
+                  maxLength: 35,
                   style: GoogleFonts.inter(fontSize: 15, color: textPrimary),
                   decoration: InputDecoration(
                     hintText: 'e.g., Lunch, Starbucks Coffee',
