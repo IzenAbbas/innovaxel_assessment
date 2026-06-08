@@ -10,6 +10,7 @@ import 'widgets/confirm_dialog.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/date_formatter.dart';
 import 'summary_screen.dart';
+import '../../../core/theme/colors.dart';
 
 class ExpensesScreen extends StatefulWidget {
   const ExpensesScreen({super.key});
@@ -24,12 +25,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-      if (userId.isNotEmpty) {
-        context.read<ExpenseViewModel>().listenToExpenses(userId);
-      }
-    });
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      context.read<ExpenseViewModel>().listenToExpenses(userId);
+    }
   }
 
   void _showLogoutDialog(BuildContext context) {
@@ -82,17 +81,12 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   }
 
   Widget _buildDashboard(BuildContext context, bool isDark) {
-    final cardBg = isDark ? const Color(0xFF131B2E) : Colors.white;
-    final textPrimary = isDark
-        ? const Color(0xFFDAE2FD)
-        : const Color(0xFF111C2D);
-    final textSecondary = isDark
-        ? const Color(0xFFC3C5D9)
-        : const Color(0xFF45464D);
-    final iconBg = isDark ? const Color(0xFF222A3D) : const Color(0xFFF0F3FF);
-    final shadowColor = isDark
-        ? Colors.black.withValues(alpha: 0.2)
-        : const Color(0xFF0F172A).withValues(alpha: 0.05);
+    final theme = Theme.of(context);
+    final cardBg = theme.colorScheme.surface;
+    final textPrimary = theme.colorScheme.onSurface;
+    final textSecondary = AppColors.textSecondary(isDark);
+    final iconBg = AppColors.iconBg(isDark);
+    final shadowColor = AppColors.shadow(isDark);
 
     final expenseViewModel = context.watch<ExpenseViewModel>();
     final expenses = expenseViewModel.expenses;
@@ -146,9 +140,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   Icon(
                     Icons.account_balance_wallet_outlined,
                     size: 64,
-                    color: isDark
-                        ? const Color(0xFF222A3D)
-                        : const Color(0xFFE5E7EB),
+                    color: AppColors.divider(isDark),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -203,6 +195,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                     textSecondary: textSecondary,
                     iconBg: iconBg,
                     shadowColor: shadowColor,
+                    theme: theme,
                     onEdit: () {
                       showModalBottomSheet(
                         context: context,
@@ -248,6 +241,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     required Color textSecondary,
     required Color iconBg,
     required Color shadowColor,
+    required ThemeData theme,
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
@@ -273,11 +267,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               color: iconBg,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              icon,
-              color: isDark ? const Color(0xFFB7C4FF) : const Color(0xFF111C2D),
-              size: 20,
-            ),
+            child: Icon(icon, color: theme.colorScheme.primary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -320,9 +310,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
-                  color: isDark
-                      ? const Color(0xFFFFB4AB)
-                      : const Color(0xFFBA1A1A),
+                  color: theme.colorScheme.error,
                 ),
               ),
               Text(
@@ -346,9 +334,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: onDelete,
-                    color: isDark
-                        ? const Color(0xFFFFB4AB)
-                        : const Color(0xFFBA1A1A),
+                    color: theme.colorScheme.error,
                   ),
                 ],
               ),
@@ -362,6 +348,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
+    final theme = Theme.of(context);
     final isDark = themeProvider.isDarkMode;
 
     final List<Widget> screens = [
@@ -379,38 +366,37 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           style: GoogleFonts.manrope(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: isDark ? const Color(0xFFDAE2FD) : const Color(0xFF111C2D),
+            color: theme.colorScheme.onSurface,
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(
               isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              color: isDark ? const Color(0xFFDAE2FD) : const Color(0xFF111C2D),
+              color: theme.colorScheme.onSurface,
             ),
             onPressed: () {
               themeProvider.toggleTheme(!isDark);
             },
           ),
           IconButton(
-            icon: Icon(
-              Icons.logout,
-              color: isDark ? const Color(0xFFFFB4AB) : const Color(0xFFBA1A1A),
-            ),
+            icon: Icon(Icons.logout, color: theme.colorScheme.error),
             onPressed: () => _showLogoutDialog(context),
           ),
           const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(child: IndexedStack(index: _selectedIndex, children: screens)),
+      body: SafeArea(
+        child: IndexedStack(index: _selectedIndex, children: screens),
+      ),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
-              backgroundColor: isDark
-                  ? const Color(0xFFB7C4FF)
-                  : const Color(0xFF111827),
-              foregroundColor: isDark ? const Color(0xFF002682) : Colors.white,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
@@ -425,10 +411,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-              color: isDark ? const Color(0xFF222A3D) : const Color(0xFFE5E7EB),
-              width: 1.0,
-            ),
+            top: BorderSide(color: AppColors.divider(isDark), width: 1.0),
           ),
         ),
         child: BottomNavigationBar(
@@ -438,11 +421,17 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               _selectedIndex = index;
             });
           },
-          backgroundColor: isDark ? const Color(0xFF0B1326) : const Color(0xFFF9F9FF),
-          selectedItemColor: isDark ? const Color(0xFFB7C4FF) : const Color(0xFF111827),
-          unselectedItemColor: isDark ? const Color(0xFFC3C5D9) : const Color(0xFF45464D),
-          selectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 12),
+          backgroundColor: theme.scaffoldBackgroundColor,
+          selectedItemColor: theme.colorScheme.primary,
+          unselectedItemColor: AppColors.textSecondary(isDark),
+          selectedLabelStyle: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+          unselectedLabelStyle: GoogleFonts.inter(
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
           elevation: 0,
           items: const [
             BottomNavigationBarItem(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../view_models/expense_view_model.dart';
+import '../../../core/theme/colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../data/models/expense.dart';
@@ -12,12 +13,13 @@ class SummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
+    final theme = Theme.of(context);
     final isDark = themeProvider.isDarkMode;
 
-    final cardBg = isDark ? const Color(0xFF131B2E) : Colors.white;
-    final textPrimary = isDark ? const Color(0xFFDAE2FD) : const Color(0xFF111C2D);
-    final textSecondary = isDark ? const Color(0xFFC3C5D9) : const Color(0xFF45464D);
-    final iconBg = isDark ? const Color(0xFF222A3D) : const Color(0xFFF0F3FF);
+    final cardBg = theme.colorScheme.surface;
+    final textPrimary = theme.colorScheme.onSurface;
+    final textSecondary = AppColors.textSecondary(isDark);
+    final iconBg = AppColors.iconBg(isDark);
     final shadowColor = isDark
         ? Colors.black.withValues(alpha: 0.2)
         : const Color(0xFF0F172A).withValues(alpha: 0.05);
@@ -84,7 +86,7 @@ class SummaryScreen extends StatelessWidget {
                   Icon(
                     Icons.pie_chart_outline,
                     size: 64,
-                    color: isDark ? const Color(0xFF222A3D) : const Color(0xFFE5E7EB),
+                    color: AppColors.divider(isDark),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -142,7 +144,7 @@ class SummaryScreen extends StatelessWidget {
                           ),
                           child: Icon(
                             icon,
-                            color: isDark ? const Color(0xFFB7C4FF) : const Color(0xFF111C2D),
+                            color: theme.colorScheme.primary,
                             size: 20,
                           ),
                         ),
@@ -185,10 +187,8 @@ class SummaryScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: percentage,
-                        backgroundColor: isDark ? const Color(0xFF222A3D) : const Color(0xFFE5E7EB),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          isDark ? const Color(0xFFB7C4FF) : const Color(0xFF111827),
-                        ),
+                        backgroundColor: AppColors.divider(isDark),
+                        color: theme.colorScheme.primary,
                         minHeight: 6,
                       ),
                     ),

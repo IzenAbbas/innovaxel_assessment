@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/theme/colors.dart';
 
 class ConfirmDialog extends StatelessWidget {
   final String title;
@@ -21,27 +22,28 @@ class ConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     final confirmColor = isDestructive
-        ? (isDark ? const Color(0xFF93000a) : const Color(0xFFBA1A1A))
-        : (isDark ? const Color(0xFFB7C4FF) : const Color(0xFF111827));
+        ? theme.colorScheme.error
+        : theme.colorScheme.primary;
 
     final confirmTextColor = isDestructive
-        ? Colors.white
-        : (isDark ? const Color(0xFF002682) : Colors.white);
+        ? theme.colorScheme.onError
+        : theme.colorScheme.onPrimary;
 
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      backgroundColor: isDark ? const Color(0xFF131B2E) : Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       title: Text(
         title,
         style: GoogleFonts.manrope(
           fontWeight: FontWeight.w700,
           fontSize: 20,
-          color: isDark ? const Color(0xFFDAE2FD) : const Color(0xFF111C2D),
+          color: theme.colorScheme.onSurface,
         ),
       ),
       content: Text(
@@ -49,7 +51,7 @@ class ConfirmDialog extends StatelessWidget {
         style: GoogleFonts.inter(
           fontSize: 14,
           height: 1.5,
-          color: isDark ? const Color(0xFFC3C5D9) : const Color(0xFF45464D),
+          color: AppColors.textSecondary(isDark),
         ),
       ),
       actionsPadding: const EdgeInsets.symmetric(
@@ -64,7 +66,7 @@ class ConfirmDialog extends StatelessWidget {
             style: GoogleFonts.inter(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: isDark ? const Color(0xFFB7C4FF) : const Color(0xFF111C2D),
+              color: theme.colorScheme.primary,
             ),
           ),
         ),

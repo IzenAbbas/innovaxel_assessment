@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../data/models/expense.dart';
 import '../../view_models/expense_view_model.dart';
+import '../../../../core/theme/colors.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   final Expense? expense;
@@ -59,27 +60,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      builder: (context, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: isDark
-                ? const ColorScheme.dark(
-                    primary: Color(0xFFB7C4FF),
-                    onPrimary: Color(0xFF002682),
-                    surface: Color(0xFF131B2E),
-                    onSurface: Color(0xFFDAE2FD),
-                  )
-                : const ColorScheme.light(
-                    primary: Color(0xFF111827),
-                    onPrimary: Colors.white,
-                    surface: Colors.white,
-                    onSurface: Color(0xFF111C2D),
-                  ),
-          ),
-          child: child!,
-        );
-      },
+
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -142,18 +123,13 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textPrimary = isDark
-        ? const Color(0xFFDAE2FD)
-        : const Color(0xFF111C2D);
-    final textSecondary = isDark
-        ? const Color(0xFFC3C5D9)
-        : const Color(0xFF45464D);
-    final sheetBg = isDark ? const Color(0xFF131B2E) : Colors.white;
-    final inputBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6);
-    final primaryAccent = isDark
-        ? const Color(0xFFB7C4FF)
-        : const Color(0xFF111827);
-    final primaryAccentText = isDark ? const Color(0xFF002682) : Colors.white;
+    final theme = Theme.of(context);
+    final textPrimary = theme.colorScheme.onSurface;
+    final textSecondary = AppColors.textSecondary(isDark);
+    final sheetBg = theme.colorScheme.surface;
+    final inputBg = AppColors.inputBg(isDark);
+    final primaryAccent = theme.colorScheme.primary;
+    final primaryAccentText = theme.colorScheme.onPrimary;
 
     final isEditMode = widget.expense != null;
 
@@ -183,9 +159,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF2D3449)
-                          : const Color(0xFFE5E7EB),
+                      color: AppColors.divider(isDark),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -234,9 +208,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   decoration: InputDecoration(
                     hintText: '0.00',
                     hintStyle: GoogleFonts.manrope(
-                      color: isDark
-                          ? const Color(0xFF4B5563)
-                          : const Color(0xFF9CA3AF),
+                      color: AppColors.hintText(isDark),
                     ),
                     filled: true,
                     fillColor: inputBg,
@@ -282,9 +254,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   decoration: InputDecoration(
                     hintText: 'e.g., Lunch, Starbucks Coffee',
                     hintStyle: GoogleFonts.inter(
-                      color: isDark
-                          ? const Color(0xFF4B5563)
-                          : const Color(0xFF9CA3AF),
+                      color: AppColors.hintText(isDark),
                     ),
                     filled: true,
                     fillColor: inputBg,
@@ -412,9 +382,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   decoration: InputDecoration(
                     hintText: 'e.g., Dinner with friends at Monal Restaurant',
                     hintStyle: GoogleFonts.inter(
-                      color: isDark
-                          ? const Color(0xFF4B5563)
-                          : const Color(0xFF9CA3AF),
+                      color: AppColors.hintText(isDark),
                     ),
                     filled: true,
                     fillColor: inputBg,
